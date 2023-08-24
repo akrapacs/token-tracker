@@ -5,7 +5,6 @@ import styles from '@/styles/Home.module.css'
 import React, { useEffect, useState, useMemo } from 'react';
 import axios from 'axios'; 
 import { 
-  Box,
   Button,
   Flex,
   Table,
@@ -14,13 +13,11 @@ import {
   Tbody,
   Td,
   Text,
-  Tfoot,
   Th,
   Thead,
   Tr,
   Input,
 } from '@chakra-ui/react';
-import { ethers } from "ethers";
 import dayjs from 'dayjs';
 
 const inter = Inter({ subsets: ['latin'] })
@@ -270,6 +267,15 @@ export default function Home() {
           >
             Refresh
           </Button>
+
+          <Image
+            className={styles.logo}
+            src="/next.svg"
+            alt="Next.js Logo"
+            width={180}
+            height={37}
+            priority
+          />
         </Flex>
       </main>
     </>
