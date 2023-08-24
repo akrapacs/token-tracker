@@ -30,6 +30,7 @@ const Symbols: Map<string, string> = new Map<string, string>([
   ['pancakeswap-token', 'CAKE'],
   ['polkadot', 'DOT'],
   ['solana', 'SOL'],
+  ['altura', 'ALU'],
 ]);
 
 const AllTimeHighs: Map<string, number> = new Map<string, number>([
@@ -40,6 +41,7 @@ const AllTimeHighs: Map<string, number> = new Map<string, number>([
   ['pancakeswap-token', 43.96],
   ['polkadot', 54.98],
   ['solana', 259.96],
+  ['altura', 0.462652],
 ]);
 
 interface Coin {
@@ -75,7 +77,7 @@ export default function Home() {
 
   const poll = async () => {
     try {
-      const url = 'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana,polkadot,cardano,binancecoin,pancakeswap-token&vs_currencies=usd,btc&precision=full';
+      const url = 'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana,polkadot,cardano,binancecoin,pancakeswap-token,altura&vs_currencies=usd,btc&precision=full';
       const response = await axios.get(url);
 
       let _coins: Coin[] = [];
@@ -154,7 +156,7 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>Tracker</title>
+        <title>Token Tracker</title>
         <meta name="description" content="Token tracker" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/token-tracker/favicon.ico" />
@@ -181,7 +183,7 @@ export default function Home() {
                 <Input 
                   placeholder='' 
                   size='xs' 
-                  width='3em'
+                  width='4em'
                   value={`${btcAthDiffThreshold}`}
                   onChange={(event) => { 
                     setBtcAthDiffThreshold(event.target.value); 
@@ -197,7 +199,7 @@ export default function Home() {
                 <Input 
                   placeholder='' 
                   size='xs' 
-                  width='3em'
+                  width='4em'
                   value={`${updateInterval}`}
                   onChange={(event) => { 
                     setUpdateInterval(event.target.value); 
@@ -267,6 +269,27 @@ export default function Home() {
           >
             Refresh
           </Button>
+
+          <Flex
+            flexDirection="row"
+            alignItems="center"
+            justifyContent="center"
+            mt={2}
+          >
+            <Text
+              fontSize="xs"
+              mr={1}
+            >
+              Powered by CoinGecko
+            </Text>
+           
+            <Image
+              src="/token-tracker/coin-gecko-logo.svg"
+              alt="CoinGecko"
+              width={20}
+              height={20}
+            />
+          </Flex>
         </Flex>
       </main>
     </>
