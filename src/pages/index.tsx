@@ -63,9 +63,14 @@ const formatPercent = (n: number): string => {
 }
 
 const currencyFormatter = new Intl.NumberFormat('en-us', { minimumFractionDigits: 2, maximumFractionDigits: 2, style: 'currency', currency: 'USD' });
+const smallCurrencyFormatter = new Intl.NumberFormat('en-us', { minimumFractionDigits: 2, maximumFractionDigits: 4, style: 'currency', currency: 'USD' });
 const formatCurrency = (n: number): string => {
+  if (n < 10) {
+    return smallCurrencyFormatter.format(n);
+  }
   return currencyFormatter.format(n);
 }
+
 
 export default function Home() {
   const [coins, setCoins] = useState<Coin[]>([]);
