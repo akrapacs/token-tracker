@@ -5,6 +5,7 @@ import styles from '@/styles/Home.module.css'
 import React, { useEffect, useState, useMemo } from 'react';
 import axios from 'axios'; 
 import { 
+  Box,
   Button,
   Flex,
   Table,
@@ -53,7 +54,7 @@ interface Coin {
   percentOfAth: number;
   fromAth: number;
   toAth: number;
-  btcAthDiff: number;
+  athDecay: number;
   flagged: boolean;
 }
 
@@ -71,12 +72,13 @@ const formatCurrency = (n: number): string => {
   return currencyFormatter.format(n);
 }
 
+const formatter = new Intl.NumberFormat('en-US', { minimumIntegerDigits: 2 });
 
 export default function Home() {
   const [coins, setCoins] = useState<Coin[]>([]);
   const [btcAthDiffThreshold, setBtcAthDiffThreshold] = useState<string>('3');
   const [updateInterval, setUpdateInterval] = useState<string>('10');
-  const [updatingInSeconds, setUpdatingInSeconds] = useState<number>(0);
+  const [refreshingIn, setRefreshingIn] = useState<string>('');
   const [updateDue, setUpdateDue] = useState<Date | null>(null);
   const [updatedAt, setUpdatedAt] = useState<dayjs.Dayjs | null>(null);
 
@@ -94,7 +96,7 @@ export default function Home() {
         const percentOfAth = priceInUsd / ath;
         const fromAth = 1 - (priceInUsd / ath);
         const toAth = (ath - priceInUsd) / priceInUsd;
-        const btcAthDiff = 0;
+        const athDecay = 0;
 
         _coins.push({
           name: key,
@@ -105,7 +107,7 @@ export default function Home() {
           percentOfAth,
           fromAth,
           toAth,
-          btcAthDiff,
+          athDecay,
           flagged: false,
         });
       });
@@ -127,12 +129,12 @@ export default function Home() {
     const _btcAthDiffThreshold = parseFloat(btcAthDiffThreshold) / 100;
 
     return coins.map((coin: Coin): Coin => {
-      const btcAthDiff = bitcoin!.percentOfAth - coin.percentOfAth;
-      const flagged = btcAthDiff > 0 && btcAthDiff < _btcAthDiffThreshold;
+      const athDecay = bitcoin!.percentOfAth - coin.percentOfAth;
+      const flagged = athDecay > 0 && athDecay < _btcAthDiffThreshold;
 
       return {
         ...coin,
-        btcAthDiff,
+        athDecay,
         flagged,
       };
     });
@@ -146,7 +148,9 @@ export default function Home() {
 
       if (updateDue && dayjs(updateDue).isAfter(now)) {
         const diff = dayjs(updateDue).diff(now, 'seconds');
-        setUpdatingInSeconds(diff);
+        const minutes = Math.floor(diff / 60);
+        const seconds = formatter.format(diff % 60);
+        setRefreshingIn(`${minutes}:${seconds}`);
       } else {
         poll();
         setUpdateDue(dayjs().add(_updateInterval, 'minutes').toDate());
@@ -166,7 +170,12 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/token-tracker/favicon.ico" />
       </Head>
-      <main className={`${styles.main} ${inter.className}`}>
+      <Box 
+        className={`${inter.className}`}
+        display="flex"
+        flexDirection="column"
+        padding="2%"
+      >
         <Flex
           flexDirection='column'
         >
@@ -184,7 +193,12 @@ export default function Home() {
                 alignItems='center'
                 mr={2}
               >
-                <Text fontSize='x-small'>Threshold:</Text>
+                <Text 
+                  fontSize='x-small'
+                  mr={1}
+                >
+                    Threshold:
+                </Text>
                 <Input 
                   placeholder='' 
                   size='xs' 
@@ -200,7 +214,12 @@ export default function Home() {
                 flexDirection='row'
                 alignItems='center'
               >
-                <Text fontSize='x-small'>Update Interval:</Text>
+                <Text
+                  fontSize='x-small'
+                  mr={1}
+                >
+                  Update Interval:
+                </Text>
                 <Input 
                   placeholder='' 
                   size='xs' 
@@ -213,68 +232,77 @@ export default function Home() {
               </Flex>
             </Flex>
 
-            { updatingInSeconds > 0 && (
-              <Text
-                fontSize="xs"
+            <Flex
+              flexDirection="row"
+              alignItems="center"
+            >
+              { refreshingIn !== '' && (
+                <Text
+                  fontSize="xs"
+                >
+                  Refreshing in {refreshingIn}
+                </Text>
+              )}
+
+              <Button
+                size="sm"
+                ml={3}
+                onClick={() => { 
+                  setUpdateDue(null);
+                  setRefreshingIn('');
+                  poll(); 
+                }}
               >
-                Refreshing in {updatingInSeconds}s
-              </Text>
-            )}
+                Refresh
+              </Button>
+            </Flex>
           </Flex>
 
-          <TableContainer>
-            <Table variant='striped'>
-              { updatedAt && (
-                <TableCaption>Updated at {updatedAt.format('dddd, MMMM D, YYYY HH:mm')}</TableCaption>
-              )}
-              <Thead>
-                <Tr>
-                  <Th>Symbol</Th>
-                  <Th>Current</Th>
-                  <Th>ATH</Th>
-                  <Th>% ATH</Th>
-                  <Th>From ATH</Th>
-                  <Th>To ATH</Th>
-                  <Th>BTC ATH Diff</Th>
-                </Tr>
-              </Thead>
-              <Tbody>
-                { 
-                  processedCoins.map((coin: Coin) => {
-                    return (
-                      <Tr
-                        key={coin.name}
-                        backgroundColor={coin.flagged ? 'yellow' : undefined}
-                      >
-                        <Td><Text fontWeight="bold">{coin.symbol}</Text></Td>
-                        <Td>{formatCurrency(coin.priceInUsd)}</Td>
-                        <Td>{formatCurrency(coin.ath)}</Td>
-                        <Td>{formatPercent(coin.percentOfAth)}</Td>
-                        <Td>{formatPercent(coin.fromAth)}</Td>
-                        <Td>{formatPercent(coin.toAth)}</Td>
-                        <Td
-                          color={coin.flagged ? 'blue' : undefined}
+          <Box overflowX="auto">
+            <TableContainer>
+              <Table variant='striped'>
+                { updatedAt && (
+                  <TableCaption>Updated at {updatedAt.format('dddd, MMMM D, YYYY HH:mm')}</TableCaption>
+                )}
+                <Thead>
+                  <Tr>
+                    <Th>Symbol</Th>
+                    <Th>Current</Th>
+                    <Th>ATH</Th>
+                    <Th>% ATH</Th>
+                    <Th>From ATH</Th>
+                    <Th>To ATH</Th>
+                    <Th>ATH Decay</Th>
+                  </Tr>
+                </Thead>
+                <Tbody>
+                  { 
+                    processedCoins.map((coin: Coin) => {
+                      return (
+                        <Tr
+                          key={coin.name}
+                          backgroundColor={coin.flagged ? 'yellow' : undefined}
                         >
-                          {formatPercent(coin.btcAthDiff)}
+                          <Td><Text fontWeight="bold">{coin.symbol}</Text></Td>
+                          <Td>{formatCurrency(coin.priceInUsd)}</Td>
+                          <Td>{formatCurrency(coin.ath)}</Td>
+                          <Td>{formatPercent(coin.percentOfAth)}</Td>
+                          <Td>{formatPercent(coin.fromAth)}</Td>
+                          <Td>{formatPercent(coin.toAth)}</Td>
+                          <Td
+                            color={coin.flagged ? 'blue' : undefined}
+                          >
+                            {formatPercent(coin.athDecay)}
                           </Td>
-                      </Tr>
-                    );
-                  })
-                }
-              </Tbody>
-            </Table>
-          </TableContainer>
-
-          <Button 
-            onClick={() => { 
-              setUpdateDue(null);
-              setUpdatingInSeconds(0);
-              poll(); 
-            }}
-          >
-            Refresh
-          </Button>
-
+                        </Tr>
+                      );
+                    })
+                  }
+                </Tbody>
+              </Table>
+            </TableContainer>
+          </Box>
+          
           <Flex
             flexDirection="row"
             alignItems="center"
@@ -296,7 +324,7 @@ export default function Home() {
             />
           </Flex>
         </Flex>
-      </main>
+      </Box>
     </>
   )
 }
