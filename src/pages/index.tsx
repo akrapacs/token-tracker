@@ -7,6 +7,7 @@ import axios from 'axios';
 import { 
   Box,
   Button,
+  Link,
   Flex,
   Table,
   TableCaption,
@@ -283,7 +284,14 @@ export default function Home() {
                           key={coin.name}
                           backgroundColor={coin.flagged ? 'yellow' : undefined}
                         >
-                          <Td><Text fontWeight="bold">{coin.symbol}</Text></Td>
+                          <Td>
+                            <Link
+                              href={`https://www.coingecko.com/en/coins/${coin.name}`}
+                              isExternal
+                            >
+                              <Text fontWeight="bold">{coin.symbol}</Text>
+                            </Link>
+                          </Td>
                           <Td>{formatCurrency(coin.priceInUsd)}</Td>
                           <Td>{formatCurrency(coin.ath)}</Td>
                           <Td>{formatPercent(coin.percentOfAth)}</Td>
@@ -309,12 +317,17 @@ export default function Home() {
             justifyContent="center"
             mt={2}
           >
-            <Text
-              fontSize="xs"
-              mr={1}
+            <Link
+              href="https://www.coingecko.com"
+              isExternal
             >
-              Powered by CoinGecko
-            </Text>
+              <Text
+                fontSize="xs"
+                mr={1}
+              >
+                Powered by CoinGecko
+              </Text>
+            </Link>
            
             <Image
               src="/token-tracker/coin-gecko-logo.svg"
