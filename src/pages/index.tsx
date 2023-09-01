@@ -24,26 +24,21 @@ import dayjs from 'dayjs';
 
 const inter = Inter({ subsets: ['latin'] })
 
-const Symbols: Map<string, string> = new Map<string, string>([
-  ['binancecoin', 'BNB'],
-  ['bitcoin', 'BTC'],
-  ['cardano', 'ADA'],
-  ['ethereum', 'ETH'],
-  ['pancakeswap-token', 'CAKE'],
-  ['polkadot', 'DOT'],
-  ['solana', 'SOL'],
-  ['altura', 'ALU'],
-]);
+interface Subscription {
+  symbol: string;
+  ath: number;
+}
 
-const AllTimeHighs: Map<string, number> = new Map<string, number>([
-  ['binancecoin', 686.31],
-  ['bitcoin', 69045.0],
-  ['cardano', 3.09],
-  ['ethereum', 4878.26],
-  ['pancakeswap-token', 43.96],
-  ['polkadot', 54.98],
-  ['solana', 259.96],
-  ['altura', 0.462652],
+const Subscriptions: Map<string, Subscription> = new Map<string, Subscription>([
+  ['binancecoin', { symbol: 'BNB', ath: 686.31 }],
+  ['bitcoin', { symbol: 'BTC', ath: 69045.0 }],
+  ['cardano', { symbol: 'ADA', ath: 3.09 }],
+  ['ethereum', { symbol: 'ETH', ath: 4878.26 }],
+  ['pancakeswap-token', { symbol: 'CAKE', ath: 43.96 }],
+  ['polkadot', { symbol: 'DOT', ath: 54.98 }],
+  ['solana', { symbol: 'SOL', ath: 259.96 }],
+  ['altura', { symbol: 'ALU', ath: 0.462652 }],
+  ['ethereum-name-service', { symbol: 'ENS', ath: 83.40 }],
 ]);
 
 interface Coin {
@@ -85,7 +80,8 @@ export default function Home() {
 
   const poll = async () => {
     try {
-      const url = 'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana,polkadot,cardano,binancecoin,pancakeswap-token,altura&vs_currencies=usd,btc&precision=full';
+      const ids = Array.from(Subscriptions.keys()).join(',');
+      const url = `https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd,btc&precision=full`;
       const response = await axios.get(url);
 
       let _coins: Coin[] = [];
@@ -93,18 +89,18 @@ export default function Home() {
         const priceInUsd = response.data[key].usd;
         const priceInBtc = response.data[key].btc;
 
-        const ath = AllTimeHighs.get(key)!;
-        const percentOfAth = priceInUsd / ath;
-        const fromAth = 1 - (priceInUsd / ath);
-        const toAth = (ath - priceInUsd) / priceInUsd;
+        const token = Subscriptions.get(key)!;
+        const percentOfAth = priceInUsd / token.ath;
+        const fromAth = 1 - (priceInUsd / token.ath);
+        const toAth = (token.ath - priceInUsd) / priceInUsd;
         const athDecay = 0;
 
         _coins.push({
           name: key,
-          symbol: Symbols.get(key)!,
+          symbol: token.symbol,
           priceInUsd,
           priceInBtc,
-          ath,
+          ath: token.ath,
           percentOfAth,
           fromAth,
           toAth,
