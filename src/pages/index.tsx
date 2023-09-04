@@ -30,15 +30,16 @@ interface Subscription {
 }
 
 const Subscriptions: Map<string, Subscription> = new Map<string, Subscription>([
+  ['altura', { symbol: 'ALU', ath: 0.462652 }],
   ['binancecoin', { symbol: 'BNB', ath: 686.31 }],
   ['bitcoin', { symbol: 'BTC', ath: 69045.0 }],
   ['cardano', { symbol: 'ADA', ath: 3.09 }],
   ['ethereum', { symbol: 'ETH', ath: 4878.26 }],
+  ['ethereum-name-service', { symbol: 'ENS', ath: 83.40 }],
   ['pancakeswap-token', { symbol: 'CAKE', ath: 43.96 }],
   ['polkadot', { symbol: 'DOT', ath: 54.98 }],
   ['solana', { symbol: 'SOL', ath: 259.96 }],
-  ['altura', { symbol: 'ALU', ath: 0.462652 }],
-  ['ethereum-name-service', { symbol: 'ENS', ath: 83.40 }],
+  ['x2y2', { symbol: 'X2Y2', ath: 4.14 }],
 ]);
 
 interface Coin {
@@ -266,7 +267,7 @@ export default function Home() {
                     <Th>Symbol</Th>
                     <Th>Current</Th>
                     <Th>ATH</Th>
-                    <Th>% ATH</Th>
+                    <Th>% of ATH</Th>
                     <Th>From ATH</Th>
                     <Th>To ATH</Th>
                     <Th>ATH Decay</Th>
