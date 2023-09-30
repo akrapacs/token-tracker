@@ -26,12 +26,10 @@ export const useApi = (): [Coin[], dayjs.Dayjs | null, () => Promise<void>] => {
   const [updatedAt, setUpdatedAt] = useState<dayjs.Dayjs | null>(null);
 
   const callApi = async () => {
-    console.log(`polling now`);
     try {
       const ids = Array.from(Subscriptions.keys()).join(',');
       const url = `https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd,btc&precision=full`;
       const response = await axios.get(url);
-      console.log('made api call');
 
       let _coins: Coin[] = [];
       Object.keys(response.data).forEach((key: string) => {
