@@ -1,123 +1,30 @@
 import Head from 'next/head'
 import Image from 'next/image'
 import { Inter } from 'next/font/google'
-import styles from '@/styles/Home.module.css'
-import React, { useEffect, useState, useMemo } from 'react';
-import axios from 'axios'; 
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
+import dayjs from 'dayjs';
+import { TokenTable } from '@/components/TokenTable';
+import { Coin } from '../types/coin';
+import { useApi } from '../hooks/useApi';
 import { 
   Box,
   Button,
   Link,
   Flex,
-  Table,
-  TableCaption,
-  TableContainer,
-  Tbody,
-  Td,
   Text,
-  Th,
-  Thead,
-  Tr,
   Input,
 } from '@chakra-ui/react';
-import dayjs from 'dayjs';
 
 const inter = Inter({ subsets: ['latin'] })
-
-interface Subscription {
-  symbol: string;
-  ath: number;
-}
-
-const Subscriptions: Map<string, Subscription> = new Map<string, Subscription>([
-  ['altura', { symbol: 'ALU', ath: 0.462652 }],
-  ['binancecoin', { symbol: 'BNB', ath: 686.31 }],
-  ['bitcoin', { symbol: 'BTC', ath: 69045.0 }],
-  ['cardano', { symbol: 'ADA', ath: 3.09 }],
-  ['ethereum', { symbol: 'ETH', ath: 4878.26 }],
-  ['ethereum-name-service', { symbol: 'ENS', ath: 83.40 }],
-  ['pancakeswap-token', { symbol: 'CAKE', ath: 43.96 }],
-  ['polkadot', { symbol: 'DOT', ath: 54.98 }],
-  ['solana', { symbol: 'SOL', ath: 259.96 }],
-  ['x2y2', { symbol: 'X2Y2', ath: 4.14 }],
-]);
-
-interface Coin {
-  name: string;
-  symbol: string;
-  priceInUsd: number;
-  priceInBtc: number;
-  ath: number;
-  percentOfAth: number;
-  fromAth: number;
-  toAth: number;
-  athDecay: number;
-  flagged: boolean;
-}
-
-const numberFormatter = new Intl.NumberFormat('en-us', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-const formatPercent = (n: number): string => {
-  return `${numberFormatter.format(n * 100)}%`;
-}
-
-const currencyFormatter = new Intl.NumberFormat('en-us', { minimumFractionDigits: 2, maximumFractionDigits: 2, style: 'currency', currency: 'USD' });
-const smallCurrencyFormatter = new Intl.NumberFormat('en-us', { minimumFractionDigits: 2, maximumFractionDigits: 4, style: 'currency', currency: 'USD' });
-const formatCurrency = (n: number): string => {
-  if (n < 10) {
-    return smallCurrencyFormatter.format(n);
-  }
-  return currencyFormatter.format(n);
-}
 
 const formatter = new Intl.NumberFormat('en-US', { minimumIntegerDigits: 2 });
 
 export default function Home() {
-  const [coins, setCoins] = useState<Coin[]>([]);
   const [btcAthDiffThreshold, setBtcAthDiffThreshold] = useState<string>('3');
   const [updateInterval, setUpdateInterval] = useState<string>('10');
   const [refreshingIn, setRefreshingIn] = useState<string>('');
-  const [updateDue, setUpdateDue] = useState<Date | null>(null);
-  const [updatedAt, setUpdatedAt] = useState<dayjs.Dayjs | null>(null);
 
-  const poll = async () => {
-    try {
-      const ids = Array.from(Subscriptions.keys()).join(',');
-      const url = `https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd,btc&precision=full`;
-      const response = await axios.get(url);
-
-      let _coins: Coin[] = [];
-      Object.keys(response.data).forEach((key: string) => {
-        const priceInUsd = response.data[key].usd;
-        const priceInBtc = response.data[key].btc;
-
-        const token = Subscriptions.get(key)!;
-        const percentOfAth = priceInUsd / token.ath;
-        const fromAth = 1 - (priceInUsd / token.ath);
-        const toAth = (token.ath - priceInUsd) / priceInUsd;
-        const athDecay = 0;
-
-        _coins.push({
-          name: key,
-          symbol: token.symbol,
-          priceInUsd,
-          priceInBtc,
-          ath: token.ath,
-          percentOfAth,
-          fromAth,
-          toAth,
-          athDecay,
-          flagged: false,
-        });
-      });
-      _coins.sort((a: Coin, b: Coin) => {
-        return b.priceInUsd - a.priceInUsd;
-      });
-      setCoins(_coins);
-      setUpdatedAt(dayjs());
-    } catch (err) {
-      console.log(`Error: ${err}`);
-    }
-  };
+  const [coins, updatedAt, callApi] = useApi();
 
   const processedCoins = useMemo(() => {
     const bitcoin = coins.find((coin: Coin) => {
@@ -138,27 +45,38 @@ export default function Home() {
     });
   }, [coins, btcAthDiffThreshold]);
 
-  useEffect(() => {
-    const _updateInterval = parseInt(updateInterval);
+  const updateDue = React.useMemo(() => {
+    if (!updatedAt) {
+      return null;
+    }
 
+    const _updateInterval = parseInt(updateInterval);
+    const updateDue = dayjs().add(_updateInterval, 'minutes').toDate();
+    return updateDue;
+  }, [updatedAt, updateInterval]);
+
+  useEffect(() => {
     const interval = setInterval(() => {
+      if (!updateDue) {
+        return;
+      }
+
       const now = dayjs();
 
-      if (updateDue && dayjs(updateDue).isAfter(now)) {
+      if (dayjs(updateDue).isAfter(now)) {
         const diff = dayjs(updateDue).diff(now, 'seconds');
         const minutes = Math.floor(diff / 60);
         const seconds = formatter.format(diff % 60);
         setRefreshingIn(`${minutes}:${seconds}`);
       } else {
-        poll();
-        setUpdateDue(dayjs().add(_updateInterval, 'minutes').toDate());
+        callApi();
       }
     }, 1000);
 
     return () => {
       clearInterval(interval);
     };
-  }, [updateDue, setUpdateDue, updateInterval]);
+  }, [callApi, setRefreshingIn, updateDue]);
 
   return (
     <>
@@ -175,20 +93,20 @@ export default function Home() {
         padding="2%"
       >
         <Flex
-          flexDirection='column'
+          flexDirection="column"
         >
           <Flex
-            flexDirection='row'
-            alignItems='center'
-            justifyContent='space-between'
+            flexDirection="row"
+            alignItems="center"
+            justifyContent="space-between"
           >
             <Flex
-              flexDirection='row'
-              alignItems='center'
+              flexDirection="row"
+              alignItems="center"
             >
               <Flex
-                flexDirection='row'
-                alignItems='center'
+                flexDirection="row"
+                alignItems="center"
                 mr={2}
               >
                 <Text 
@@ -198,9 +116,9 @@ export default function Home() {
                     Threshold:
                 </Text>
                 <Input 
-                  placeholder='' 
-                  size='xs' 
-                  width='4em'
+                  placeholder=""
+                  size="xs" 
+                  width="4em"
                   value={`${btcAthDiffThreshold}`}
                   onChange={(event) => { 
                     setBtcAthDiffThreshold(event.target.value); 
@@ -209,19 +127,19 @@ export default function Home() {
               </Flex>
 
               <Flex
-                flexDirection='row'
-                alignItems='center'
+                flexDirection="row"
+                alignItems="center"
               >
                 <Text
-                  fontSize='x-small'
+                  fontSize="x-small"
                   mr={1}
                 >
                   Update Interval:
                 </Text>
                 <Input 
-                  placeholder='' 
-                  size='xs' 
-                  width='4em'
+                  placeholder=""
+                  size="xs" 
+                  width="4em"
                   value={`${updateInterval}`}
                   onChange={(event) => { 
                     setUpdateInterval(event.target.value); 
@@ -234,21 +152,12 @@ export default function Home() {
               flexDirection="row"
               alignItems="center"
             >
-              { refreshingIn !== '' && (
-                <Text
-                  fontSize="xs"
-                >
-                  Refreshing in {refreshingIn}
-                </Text>
-              )}
-
               <Button
                 size="sm"
                 ml={3}
                 onClick={() => { 
-                  setUpdateDue(null);
                   setRefreshingIn('');
-                  poll(); 
+                  callApi(); 
                 }}
               >
                 Refresh
@@ -256,57 +165,38 @@ export default function Home() {
             </Flex>
           </Flex>
 
-          <Box overflowX="auto">
-            <TableContainer>
-              <Table variant='striped'>
-                { updatedAt && (
-                  <TableCaption>Updated at {updatedAt.format('dddd, MMMM D, YYYY HH:mm')}</TableCaption>
-                )}
-                <Thead>
-                  <Tr>
-                    <Th>Symbol</Th>
-                    <Th>Current</Th>
-                    <Th>ATH</Th>
-                    <Th>% of ATH</Th>
-                    <Th>From ATH</Th>
-                    <Th>To ATH</Th>
-                    <Th>ATH Decay</Th>
-                  </Tr>
-                </Thead>
-                <Tbody>
-                  { 
-                    processedCoins.map((coin: Coin) => {
-                      return (
-                        <Tr
-                          key={coin.name}
-                          backgroundColor={coin.flagged ? 'yellow' : undefined}
-                        >
-                          <Td>
-                            <Link
-                              href={`https://www.coingecko.com/en/coins/${coin.name}`}
-                              isExternal
-                            >
-                              <Text fontWeight="bold">{coin.symbol}</Text>
-                            </Link>
-                          </Td>
-                          <Td>{formatCurrency(coin.priceInUsd)}</Td>
-                          <Td>{formatCurrency(coin.ath)}</Td>
-                          <Td>{formatPercent(coin.percentOfAth)}</Td>
-                          <Td>{formatPercent(coin.fromAth)}</Td>
-                          <Td>{formatPercent(coin.toAth)}</Td>
-                          <Td
-                            color={coin.flagged ? 'blue' : undefined}
-                          >
-                            {formatPercent(coin.athDecay)}
-                          </Td>
-                        </Tr>
-                      );
-                    })
-                  }
-                </Tbody>
-              </Table>
-            </TableContainer>
+          <Box
+            mb={3}
+          >
+            <TokenTable coins={processedCoins} />
           </Box>
+
+          <Flex
+            flexDirection="row"
+            alignItems="center"
+            justifyContent="center"
+          >
+            { updatedAt && (
+              <Text
+                fontSize="xs"
+              >
+                Updated at {updatedAt.format('dddd, MMMM D, YYYY HH:mm')}
+              </Text>
+            )}
+          </Flex>
+          <Flex
+            flexDirection="row"
+            alignItems="center"
+            justifyContent="center"
+          >
+            { refreshingIn !== '' && (
+                <Text
+                  fontSize="xs"
+                >
+                  Refreshing in {refreshingIn}
+                </Text>
+              )}
+          </Flex>
           
           <Flex
             flexDirection="row"
