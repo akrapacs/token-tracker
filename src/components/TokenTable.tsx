@@ -1,7 +1,8 @@
 import React from 'react';
 import { ResponsiveComponent } from './ResponsiveComponents';
 import { Coin } from '../types/coin';
-import dayjs from 'dayjs';
+import { formatCurrency, formatFloat, formatPercent } from '@/util/text';
+import { DetailModal } from './DetailModal';
 import { 
   Link,
   Table,
@@ -12,24 +13,11 @@ import {
   Th,
   Thead,
   Tr,
+  useDisclosure,
 } from '@chakra-ui/react';
 
 interface TokenTableProps {
   coins: Coin[],
-}
-
-const numberFormatter = new Intl.NumberFormat('en-us', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-const formatPercent = (n: number): string => {
-  return `${numberFormatter.format(n * 100)}%`;
-}
-
-const currencyFormatter = new Intl.NumberFormat('en-us', { minimumFractionDigits: 2, maximumFractionDigits: 2, style: 'currency', currency: 'USD' });
-const smallCurrencyFormatter = new Intl.NumberFormat('en-us', { minimumFractionDigits: 2, maximumFractionDigits: 4, style: 'currency', currency: 'USD' });
-const formatCurrency = (n: number): string => {
-  if (n < 10) {
-    return smallCurrencyFormatter.format(n);
-  }
-  return currencyFormatter.format(n);
 }
 
 const MobileView = (props: TokenTableProps) => {
@@ -37,49 +25,68 @@ const MobileView = (props: TokenTableProps) => {
     coins,
   } = props;
 
+  const [selectedCoin, setSelectedCoin] = React.useState<Coin | null>(null);
+
+  const detailModalDisclosure = useDisclosure();
+
   if (!coins) {
     return null;
   }
 
   return (
-    <TableContainer>
-      <Table variant='striped'>
-        <Thead>
-          <Tr>
-            <Th>Symbol</Th>
-            <Th>Current</Th>
-            <Th>ATH Decay</Th>
-          </Tr>
-        </Thead>
-        <Tbody>
-          { 
-            coins.map((coin: Coin) => {
-              return (
-                <Tr
-                  key={coin.name}
-                  backgroundColor={coin.flagged ? 'yellow' : undefined}
-                >
-                  <Td>
-                    <Link
-                      href={`https://www.coingecko.com/en/coins/${coin.name}`}
-                      isExternal
-                    >
-                      <Text fontWeight="bold">{coin.symbol}</Text>
-                    </Link>
-                  </Td>
-                  <Td>{formatCurrency(coin.priceInUsd)}</Td>
-                  <Td
-                    color={coin.flagged ? 'blue' : undefined}
+    <>
+      <TableContainer>
+        <Table>
+          <Thead>
+            <Tr>
+              <Th>Symbol</Th>
+              <Th>Current</Th>
+              <Th>ATH Decay</Th>
+            </Tr>
+          </Thead>
+          <Tbody>
+            { 
+              coins.map((coin: Coin, index: number) => {
+                return (
+                  <Tr
+                    key={coin.name}
+                    backgroundColor={coin.flagged ? 'yellow' : index % 2 !== 0 ? "#cccccc" : undefined}
+                    cursor="pointer"
+                    onClick={() => {
+                      setSelectedCoin(coin);
+                      detailModalDisclosure.onOpen();
+                    }}
                   >
-                    {formatPercent(coin.athDecay)}
-                  </Td>
-                </Tr>
-              );
-            })
-          }
-        </Tbody>
-      </Table>
-    </TableContainer>
+                    <Td>
+                      <Link
+                        href={`https://www.coingecko.com/en/coins/${coin.name}`}
+                        isExternal
+                      >
+                        <Text fontWeight="bold">{coin.symbol}</Text>
+                      </Link>
+                    </Td>
+                    <Td>{formatCurrency(coin.priceInUsd)}</Td>
+                    <Td
+                      color={coin.flagged ? 'blue' : undefined}
+                    >
+                      {formatPercent(coin.athDecay)}
+                    </Td>
+                  </Tr>
+                );
+              })
+            }
+          </Tbody>
+        </Table>
+      </TableContainer>
+      
+      { selectedCoin && (
+        <DetailModal
+          coin={selectedCoin}
+          isOpen={detailModalDisclosure.isOpen} 
+          onClose={detailModalDisclosure.onClose}
+        />
+      )}
+    </>
   )
 };
 
@@ -94,11 +101,12 @@ const StandardView = (props: TokenTableProps) => {
 
   return (
     <TableContainer>
-      <Table variant='striped'>
+      <Table>
         <Thead>
           <Tr>
             <Th>Symbol</Th>
-            <Th>Current</Th>
+            <Th>USD Price</Th>
+            <Th>BTC Price</Th>
             <Th>ATH</Th>
             <Th>% of ATH</Th>
             <Th>From ATH</Th>
@@ -108,11 +116,11 @@ const StandardView = (props: TokenTableProps) => {
         </Thead>
         <Tbody>
           { 
-            coins.map((coin: Coin) => {
+            coins.map((coin: Coin, index: number) => {
               return (
                 <Tr
                   key={coin.name}
-                  backgroundColor={coin.flagged ? 'yellow' : undefined}
+                  backgroundColor={coin.flagged ? 'yellow' : index % 2 !== 0 ? "#cccccc" : undefined}
                 >
                   <Td>
                     <Link
@@ -123,6 +131,7 @@ const StandardView = (props: TokenTableProps) => {
                     </Link>
                   </Td>
                   <Td>{formatCurrency(coin.priceInUsd)}</Td>
+                  <Td>{formatFloat(coin.priceInBtc)}</Td>
                   <Td>{formatCurrency(coin.ath)}</Td>
                   <Td>{formatPercent(coin.percentOfAth)}</Td>
                   <Td>{formatPercent(coin.fromAth)}</Td>
