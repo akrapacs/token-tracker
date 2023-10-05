@@ -20,7 +20,7 @@ const inter = Inter({ subsets: ['latin'] })
 const formatter = new Intl.NumberFormat('en-US', { minimumIntegerDigits: 2 });
 
 export default function Home() {
-  const [btcAthDiffThreshold, setBtcAthDiffThreshold] = useState<string>('3');
+  const [btcAthDiffThreshold, setBtcAthDiffThreshold] = useState<string>('5');
   const [updateInterval, setUpdateInterval] = useState<string>('10');
   const [refreshingIn, setRefreshingIn] = useState<string>('');
 
