@@ -106,12 +106,12 @@ const StandardView = (props: TokenTableProps) => {
           <Tr>
             <Th>Symbol</Th>
             <Th>USD Price</Th>
+            <Th>ATH Decay</Th>
             <Th>BTC Price</Th>
             <Th>ATH</Th>
             <Th>% of ATH</Th>
             <Th>From ATH</Th>
             <Th>To ATH</Th>
-            <Th>ATH Decay</Th>
           </Tr>
         </Thead>
         <Tbody>
@@ -130,17 +130,17 @@ const StandardView = (props: TokenTableProps) => {
                       <Text fontWeight="bold">{coin.symbol}</Text>
                     </Link>
                   </Td>
+                  <Td
+                    color={coin.flagged ? 'blue' : undefined}
+                  >
+                    {formatPercent(coin.athDecay)}
+                  </Td>
                   <Td>{formatCurrency(coin.priceInUsd)}</Td>
                   <Td>{formatFloat(coin.priceInBtc)}</Td>
                   <Td>{formatCurrency(coin.ath)}</Td>
                   <Td>{formatPercent(coin.percentOfAth)}</Td>
                   <Td>{formatPercent(coin.fromAth)}</Td>
                   <Td>{formatPercent(coin.toAth)}</Td>
-                  <Td
-                    color={coin.flagged ? 'blue' : undefined}
-                  >
-                    {formatPercent(coin.athDecay)}
-                  </Td>
                 </Tr>
               );
             })

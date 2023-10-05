@@ -12,7 +12,7 @@ export const formatCurrency = (n: number): string => {
   return currencyFormatter.format(n);
 }
 
-const floatFormatter = new Intl.NumberFormat('en-us', { minimumFractionDigits: 1, maximumFractionDigits: 10 });
+const floatFormatter = new Intl.NumberFormat('en-us', { minimumFractionDigits: 1, maximumFractionDigits: 8 });
 export const formatFloat = (n: number): string => {
   return `${floatFormatter.format(n)}`;
 }
