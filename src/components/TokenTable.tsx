@@ -149,14 +149,14 @@ const StandardView = (props: TokenTableProps) => {
               color="white"
             >
               <Center>
-                BTC Price
+                ATH Decay
               </Center>
             </Th>
             <Th
               color="white"
             >
               <Center>
-                ATH Decay
+                BTC Price
               </Center>
             </Th>
             <Th
@@ -198,15 +198,20 @@ const StandardView = (props: TokenTableProps) => {
                   backgroundColor={coin.flagged ? highlightBlue : index % 2 !== 0 ? "#cccccc" : undefined}
                 >
                   <Td>
-                    <Link
-                      href={`https://www.coingecko.com/en/coins/${coin.name}`}
-                      isExternal
-                    >
-                      <Text fontWeight="bold">{coin.symbol}</Text>
-                    </Link>
+                    <Center>
+                      <Link
+                        href={`https://www.coingecko.com/en/coins/${coin.name}`}
+                        isExternal
+                      >
+                        <Text fontWeight="bold">{coin.symbol}</Text>
+                      </Link>
+                    </Center>
                   </Td>
-                  <Td>{formatCurrency(coin.priceInUsd)}</Td>
-                  <Td>{formatFloat(coin.priceInBtc)}</Td>
+                  <Td>
+                    <Center>
+                      {formatCurrency(coin.priceInUsd)}
+                    </Center>
+                  </Td>
                   <Td
                     color={coin.flagged ? 'blue' : undefined}
                     backgroundColor={highlightBlue}
@@ -215,7 +220,16 @@ const StandardView = (props: TokenTableProps) => {
                       {formatPercent(coin.athDecay)}
                     </Center>
                   </Td>
-                  <Td>{formatCurrency(coin.ath)}</Td>
+                  <Td>
+                    <Center>
+                      {formatFloat(coin.priceInBtc)}
+                    </Center>
+                  </Td>
+                  <Td>
+                    <Center>
+                      {formatCurrency(coin.ath)}
+                    </Center>
+                  </Td>
                   <Td>
                     <Center>
                       {formatPercent(coin.percentOfAth)}
