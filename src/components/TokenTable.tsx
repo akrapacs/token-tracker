@@ -41,18 +41,26 @@ const MobileView = (props: TokenTableProps) => {
       <TableContainer>
         <Table>
           <Thead>
-            <Tr>
-              <Th>
+            <Tr
+              backgroundColor="black"
+            >
+              <Th
+                color="white"
+              >
                 <Center>
                   Symbol
                 </Center>
               </Th>
-              <Th>
+              <Th
+                color="white"
+              >
                 <Center>
                   Current
                 </Center>
               </Th>
-              <Th>
+              <Th
+                color="white"
+              >
                 <Center>
                   ATH Decay
                 </Center>
@@ -120,45 +128,61 @@ const StandardView = (props: TokenTableProps) => {
     <TableContainer>
       <Table>
         <Thead>
-          <Tr>
-            <Th>
+          <Tr
+            backgroundColor="black"
+          >
+            <Th
+              color="white"
+            >
               <Center>
                 Symbol
               </Center>
             </Th>
-            <Th>
+            <Th
+              color="white"
+            >
               <Center>
                 USD Price
               </Center>
             </Th>
-            <Th>
+            <Th
+              color="white"
+            >
               <Center>
                 BTC Price
               </Center>
             </Th>
             <Th
-              backgroundColor={highlightBlue}
+              color="white"
             >
               <Center>
                 ATH Decay
               </Center>
             </Th>
-            <Th>
+            <Th
+              color="white"
+            >
               <Center>
                 ATH
               </Center>
             </Th>
-            <Th>
+            <Th
+              color="white"
+            >
               <Center>
                 % of ATH
               </Center>
             </Th>
-            <Th>
+            <Th
+              color="white"
+            >
               <Center>
                 From ATH
               </Center>
             </Th>
-            <Th>
+            <Th
+              color="white"
+            >
               <Center>
                 To ATH
               </Center>
