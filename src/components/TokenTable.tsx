@@ -4,6 +4,7 @@ import { Coin } from '../types/coin';
 import { formatCurrency, formatFloat, formatPercent } from '@/util/text';
 import { DetailModal } from './DetailModal';
 import { 
+  Center,
   Link,
   Table,
   TableContainer,
@@ -15,6 +16,8 @@ import {
   Tr,
   useDisclosure,
 } from '@chakra-ui/react';
+
+const highlightBlue = '#82eefd';
 
 interface TokenTableProps {
   coins: Coin[],
@@ -39,9 +42,21 @@ const MobileView = (props: TokenTableProps) => {
         <Table>
           <Thead>
             <Tr>
-              <Th>Symbol</Th>
-              <Th>Current</Th>
-              <Th>ATH Decay</Th>
+              <Th>
+                <Center>
+                  Symbol
+                </Center>
+              </Th>
+              <Th>
+                <Center>
+                  Current
+                </Center>
+              </Th>
+              <Th>
+                <Center>
+                  ATH Decay
+                </Center>
+              </Th>
             </Tr>
           </Thead>
           <Tbody>
@@ -50,7 +65,7 @@ const MobileView = (props: TokenTableProps) => {
                 return (
                   <Tr
                     key={coin.name}
-                    backgroundColor={coin.flagged ? 'yellow' : index % 2 !== 0 ? "#cccccc" : undefined}
+                    backgroundColor={coin.flagged ? highlightBlue : index % 2 !== 0 ? "#cccccc" : undefined}
                     cursor="pointer"
                     onClick={() => {
                       setSelectedCoin(coin);
@@ -69,7 +84,9 @@ const MobileView = (props: TokenTableProps) => {
                     <Td
                       color={coin.flagged ? 'blue' : undefined}
                     >
-                      {formatPercent(coin.athDecay)}
+                      <Center>
+                        {formatPercent(coin.athDecay)}
+                      </Center>
                     </Td>
                   </Tr>
                 );
@@ -104,14 +121,48 @@ const StandardView = (props: TokenTableProps) => {
       <Table>
         <Thead>
           <Tr>
-            <Th>Symbol</Th>
-            <Th>USD Price</Th>
-            <Th>BTC Price</Th>
-            <Th>ATH Decay</Th>
-            <Th>ATH</Th>
-            <Th>% of ATH</Th>
-            <Th>From ATH</Th>
-            <Th>To ATH</Th>
+            <Th>
+              <Center>
+                Symbol
+              </Center>
+            </Th>
+            <Th>
+              <Center>
+                USD Price
+              </Center>
+            </Th>
+            <Th>
+              <Center>
+                BTC Price
+              </Center>
+            </Th>
+            <Th
+              backgroundColor={highlightBlue}
+            >
+              <Center>
+                ATH Decay
+              </Center>
+            </Th>
+            <Th>
+              <Center>
+                ATH
+              </Center>
+            </Th>
+            <Th>
+              <Center>
+                % of ATH
+              </Center>
+            </Th>
+            <Th>
+              <Center>
+                From ATH
+              </Center>
+            </Th>
+            <Th>
+              <Center>
+                To ATH
+              </Center>
+            </Th>
           </Tr>
         </Thead>
         <Tbody>
@@ -120,7 +171,7 @@ const StandardView = (props: TokenTableProps) => {
               return (
                 <Tr
                   key={coin.name}
-                  backgroundColor={coin.flagged ? 'yellow' : index % 2 !== 0 ? "#cccccc" : undefined}
+                  backgroundColor={coin.flagged ? highlightBlue : index % 2 !== 0 ? "#cccccc" : undefined}
                 >
                   <Td>
                     <Link
@@ -134,12 +185,23 @@ const StandardView = (props: TokenTableProps) => {
                   <Td>{formatFloat(coin.priceInBtc)}</Td>
                   <Td
                     color={coin.flagged ? 'blue' : undefined}
+                    backgroundColor={highlightBlue}
                   >
-                    {formatPercent(coin.athDecay)}
+                    <Center>
+                      {formatPercent(coin.athDecay)}
+                    </Center>
                   </Td>
                   <Td>{formatCurrency(coin.ath)}</Td>
-                  <Td>{formatPercent(coin.percentOfAth)}</Td>
-                  <Td>{formatPercent(coin.fromAth)}</Td>
+                  <Td>
+                    <Center>
+                      {formatPercent(coin.percentOfAth)}
+                    </Center>
+                  </Td>
+                  <Td>
+                    <Center>
+                      {formatPercent(coin.fromAth)}
+                    </Center>
+                  </Td>
                   <Td>{formatPercent(coin.toAth)}</Td>
                 </Tr>
               );
