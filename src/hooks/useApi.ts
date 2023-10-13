@@ -9,7 +9,6 @@ interface Subscription {
 }
 
 const Subscriptions: Map<string, Subscription> = new Map<string, Subscription>([
-  ['altura', { symbol: 'ALU', ath: 0.462652 }],
   ['binancecoin', { symbol: 'BNB', ath: 686.31 }],
   ['bitcoin', { symbol: 'BTC', ath: 69045.0 }],
   ['cardano', { symbol: 'ADA', ath: 3.09 }],
