@@ -6,6 +6,8 @@ import dayjs from 'dayjs';
 import { TokenTable } from '@/components/TokenTable';
 import { Coin } from '../types/coin';
 import { useApi } from '../hooks/useApi';
+import { useLocalStorage } from '../hooks/useLocalStorage';
+import { SunIcon, MoonIcon } from '@chakra-ui/icons'
 import { 
   Box,
   Button,
@@ -15,8 +17,6 @@ import {
   Input,
   useColorMode,
 } from '@chakra-ui/react';
-import { SunIcon, MoonIcon } from '@chakra-ui/icons'
-
 
 
 const inter = Inter({ subsets: ['latin'] })
@@ -26,8 +26,8 @@ const formatter = new Intl.NumberFormat('en-US', { minimumIntegerDigits: 2 });
 export default function Home() {
   const { colorMode, toggleColorMode } = useColorMode();
 
-  const [btcAthDiffThreshold, setBtcAthDiffThreshold] = useState<string>('5');
-  const [updateInterval, setUpdateInterval] = useState<string>('10');
+  const [btcAthDiffThreshold, setBtcAthDiffThreshold] = useLocalStorage<string>('btcAthDiffThreshold', '6');
+  const [updateInterval, setUpdateInterval] = useLocalStorage<string>('updateInterval', '10');
   const [refreshingIn, setRefreshingIn] = useState<string>('');
 
   const [coins, updatedAt, callApi] = useApi();
