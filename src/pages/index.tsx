@@ -13,13 +13,19 @@ import {
   Flex,
   Text,
   Input,
+  useColorMode,
 } from '@chakra-ui/react';
+import { SunIcon, MoonIcon } from '@chakra-ui/icons'
+
+
 
 const inter = Inter({ subsets: ['latin'] })
 
 const formatter = new Intl.NumberFormat('en-US', { minimumIntegerDigits: 2 });
 
 export default function Home() {
+  const { colorMode, toggleColorMode } = useColorMode();
+
   const [btcAthDiffThreshold, setBtcAthDiffThreshold] = useState<string>('5');
   const [updateInterval, setUpdateInterval] = useState<string>('10');
   const [refreshingIn, setRefreshingIn] = useState<string>('');
@@ -99,6 +105,7 @@ export default function Home() {
             flexDirection="row"
             alignItems="center"
             justifyContent="space-between"
+            mb={2}
           >
             <Flex
               flexDirection="row"
@@ -152,6 +159,21 @@ export default function Home() {
               flexDirection="row"
               alignItems="center"
             >
+              <Button
+                size="sm"
+                ml={3}
+                onClick={() => { 
+                  toggleColorMode();
+                }}
+              >
+                { colorMode === 'dark' && (
+                  <SunIcon w={4} h={4} color="white" />
+                )}
+                { colorMode === 'light' && (
+                  <MoonIcon w={4} h={4} color="black" />
+                )}
+              </Button>
+
               <Button
                 size="sm"
                 ml={3}

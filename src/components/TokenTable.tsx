@@ -15,17 +15,25 @@ import {
   Thead,
   Tr,
   useDisclosure,
+  useColorMode,
 } from '@chakra-ui/react';
-
-const highlightBlue = '#82eefd';
 
 interface TokenTableProps {
   coins: Coin[],
 }
 
-const MobileView = (props: TokenTableProps) => {
+interface InternalProps extends TokenTableProps {
+  highlightColor: string;
+  stripeColor: string;
+  specialTextColor: string;
+}
+
+const MobileView = (props: InternalProps) => {
   const {
     coins,
+    stripeColor,
+    highlightColor,
+    specialTextColor,
   } = props;
 
   const [selectedCoin, setSelectedCoin] = React.useState<Coin | null>(null);
@@ -73,7 +81,7 @@ const MobileView = (props: TokenTableProps) => {
                 return (
                   <Tr
                     key={coin.name}
-                    backgroundColor={coin.flagged ? highlightBlue : index % 2 !== 0 ? "#cccccc" : undefined}
+                    backgroundColor={coin.flagged ? highlightColor : index % 2 !== 0 ? stripeColor : undefined}
                     cursor="pointer"
                     onClick={() => {
                       setSelectedCoin(coin);
@@ -90,7 +98,7 @@ const MobileView = (props: TokenTableProps) => {
                     </Td>
                     <Td>{formatCurrency(coin.priceInUsd)}</Td>
                     <Td
-                      color={coin.flagged ? 'blue' : undefined}
+                      color={coin.flagged ? specialTextColor : undefined}
                     >
                       <Center>
                         {formatPercent(coin.athDecay)}
@@ -115,9 +123,12 @@ const MobileView = (props: TokenTableProps) => {
   )
 };
 
-const StandardView = (props: TokenTableProps) => {
+const StandardView = (props: InternalProps) => {
   const {
     coins,
+    stripeColor,
+    highlightColor,
+    specialTextColor,
   } = props;
 
   if (!coins) {
@@ -195,7 +206,7 @@ const StandardView = (props: TokenTableProps) => {
               return (
                 <Tr
                   key={coin.name}
-                  backgroundColor={coin.flagged ? highlightBlue : index % 2 !== 0 ? "#cccccc" : undefined}
+                  backgroundColor={coin.flagged ? highlightColor : index % 2 !== 0 ? stripeColor : undefined}
                 >
                   <Td>
                     <Center>
@@ -213,8 +224,8 @@ const StandardView = (props: TokenTableProps) => {
                     </Center>
                   </Td>
                   <Td
-                    color={coin.flagged ? 'blue' : undefined}
-                    backgroundColor={highlightBlue}
+                    color={coin.flagged ? specialTextColor : undefined}
+                    backgroundColor={highlightColor}
                   >
                     <Center>
                       {formatPercent(coin.athDecay)}
@@ -252,10 +263,50 @@ const StandardView = (props: TokenTableProps) => {
 };
 
 export const TokenTable = (props: TokenTableProps) => {
+  const { colorMode } = useColorMode();
+
+  const highlightColor = React.useMemo(() => {
+    if (colorMode === 'dark') {
+      return '#065666';
+    } else {
+      return '#82eefd';
+    }
+  }, [colorMode]);
+
+  const stripeColor = React.useMemo(() => {
+    if (colorMode === 'dark') {
+      return '#2c2c2c';
+    } else {
+      return '#cccccc';
+    }
+  }, [colorMode]);
+
+  const specialTextColor = React.useMemo(() => {
+    if (colorMode === 'dark') {
+      return 'gold';
+    } else {
+      return 'blue';
+    }
+  }, [colorMode]);
+
   return (
     <ResponsiveComponent
-      mobileComponent={<MobileView { ...props } />}
-      standardComponent={<StandardView { ...props } />}
+      mobileComponent={
+      <MobileView 
+        highlightColor={highlightColor}
+        stripeColor={stripeColor}
+        specialTextColor={specialTextColor}
+        { ...props }
+      />
+      }
+      standardComponent={
+        <StandardView 
+          highlightColor={highlightColor}
+          stripeColor={stripeColor}
+          specialTextColor={specialTextColor}
+          { ...props } 
+        />
+      }
     />
   );
 };
