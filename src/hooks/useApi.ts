@@ -18,6 +18,9 @@ const Subscriptions: Map<string, Subscription> = new Map<string, Subscription>([
   ['polkadot', { symbol: 'DOT', ath: 54.98 }],
   ['solana', { symbol: 'SOL', ath: 259.96 }],
   ['x2y2', { symbol: 'X2Y2', ath: 4.14 }],
+  ['ripple', { symbol: 'XRP', ath: 3.40 }],
+  ['usd-coin', { symbol: 'USDC', ath: 1.17 }],
+  ['tether', { symbol: 'USDT', ath: 1.32 }],
 ]);
 
 const callSimplePriceApi = async (ids: string) => {
