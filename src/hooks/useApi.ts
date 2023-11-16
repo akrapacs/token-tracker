@@ -23,37 +23,42 @@ const Subscriptions: Map<string, Subscription> = new Map<string, Subscription>([
   ['tether', { symbol: 'USDT', ath: 1.32 }],
 ]);
 
-const callSimplePriceApi = async (ids: string) => {
-  const url = `https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd,btc&precision=full`;
-  const response = await axios.get(url);
-  return response.data;
-};
+// const callSimplePriceApi = async (ids: string) => {
+//   const url = `https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd,btc&precision=full`;
+//   const response = await axios.get(url);
+//   return response.data;
+// };
 
-// For some reason the /simple/price endpoint stopped working so this uses the /coins/markets API and basically
-// replicates the response from that endpoint so it can be used as a fallback. It's the fallback since it
-// requires 2 calls instead of 1. The hope is that the simple endpoint starts working again.
-const callMarketsApi = async (ids: string): Promise<Record<string, { usd: number, btc: number}>> => {
+const callMarketsApi = async (ids: string): Promise<Record<string, { ath: number, usd: number, btc: number}>> => {
   const url1 = `https://api.coingecko.com/api/v3/coins/markets?ids=${ids}&vs_currency=usd&precision=full`;
-  const url2 = `https://api.coingecko.com/api/v3/coins/markets?ids=${ids}&vs_currency=btc&precision=full`;
+  // const url2 = `https://api.coingecko.com/api/v3/coins/markets?ids=${ids}&vs_currency=btc&precision=full`;
   
-  const [priceInUsdResponse, priceInBtcResponse] = await Promise.all([
-    axios.get(url1),
-    axios.get(url2),
-  ]);
+  // const [priceInUsdResponse, priceInBtcResponse] = await Promise.all([
+  //   axios.get(url1),
+  //   axios.get(url2),
+  // ]);
+  const priceInUsdResponse = await axios.get(url1);
 
   const tokensInUsd = priceInUsdResponse.data;
-  const tokensInBtc = priceInBtcResponse.data;
+  // const tokensInBtc = priceInBtcResponse.data;
 
   const data: any = {};
 
+  const bitcoin = tokensInUsd.find((tokenInUsd: any) => {
+    return tokenInUsd.id === 'bitcoin';
+  });
+  const bitcoinPriceInUsd = bitcoin.current_price;
+
   tokensInUsd.forEach((tokenInUsd: any) => {
-    const tokenInBtc = tokensInBtc.find((item: any) => {
-      return item.id === tokenInUsd.id;
-    });
+    // const tokenInBtc = tokensInBtc.find((item: any) => {
+    //   return item.id === tokenInUsd.id;
+    // });
 
     data[tokenInUsd.id] = {
+      ath: tokenInUsd.ath,
       usd: tokenInUsd.current_price,
-      btc: tokenInBtc.current_price,
+      btc: tokenInUsd.current_price / bitcoinPriceInUsd,
+      // btc: tokenInBtc.current_price,
     }
   });
 
@@ -67,24 +72,17 @@ export const useApi = (): [Coin[], dayjs.Dayjs | null, () => Promise<void>] => {
   const callApi = async () => {
     try {
       const ids = Array.from(Subscriptions.keys()).join(',');
-
-      let data: any;
-      try {
-        data = await callSimplePriceApi(ids);
-      } catch (err) {
-        console.log(`Error: ${err} (attempting fallback)`);
-
-        data = await callMarketsApi(ids);
-      }
+      const data = await callMarketsApi(ids);
 
       let _coins: Coin[] = [];
       Object.keys(data).forEach((key: string) => {
         const priceInUsd = data[key].usd;
         const priceInBtc = data[key].btc;
+        const ath = data[key].ath;
 
         const token = Subscriptions.get(key)!;
-        const percentOfAth = priceInUsd / token.ath;
-        const fromAth = 1 - (priceInUsd / token.ath);
+        const percentOfAth = priceInUsd / ath;
+        const fromAth = 1 - (priceInUsd / ath);
         const toAth = (token.ath - priceInUsd) / priceInUsd;
         const athDecay = 0;
 
@@ -93,7 +91,7 @@ export const useApi = (): [Coin[], dayjs.Dayjs | null, () => Promise<void>] => {
           symbol: token.symbol,
           priceInUsd,
           priceInBtc,
-          ath: token.ath,
+          ath,
           percentOfAth,
           fromAth,
           toAth,
