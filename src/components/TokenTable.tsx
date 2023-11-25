@@ -101,7 +101,7 @@ const MobileView = (props: InternalProps) => {
                       color={coin.flagged ? specialTextColor : undefined}
                     >
                       <Center>
-                        {formatPercent(coin.athDecay)}
+                        {coin.athDecay > 0 ? formatPercent(coin.athDecay) : '-'}
                       </Center>
                     </Td>
                   </Tr>
@@ -228,7 +228,7 @@ const StandardView = (props: InternalProps) => {
                     backgroundColor={highlightColor}
                   >
                     <Center>
-                      {formatPercent(coin.athDecay)}
+                      {coin.athDecay > 0 ? formatPercent(coin.athDecay) : '-'}
                     </Center>
                   </Td>
                   <Td>
