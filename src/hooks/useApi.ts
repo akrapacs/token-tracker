@@ -3,44 +3,28 @@ import { Coin } from '../types/coin';
 import dayjs from 'dayjs';
 import axios from 'axios'; 
 
-interface Subscription {
-  symbol: string;
-  ath: number;
-}
 
-const Subscriptions: Map<string, Subscription> = new Map<string, Subscription>([
-  ['binancecoin', { symbol: 'BNB', ath: 686.31 }],
-  ['bitcoin', { symbol: 'BTC', ath: 69045.0 }],
-  ['cardano', { symbol: 'ADA', ath: 3.09 }],
-  ['ethereum', { symbol: 'ETH', ath: 4878.26 }],
-  ['ethereum-name-service', { symbol: 'ENS', ath: 83.40 }],
-  ['pancakeswap-token', { symbol: 'CAKE', ath: 43.96 }],
-  ['polkadot', { symbol: 'DOT', ath: 54.98 }],
-  ['solana', { symbol: 'SOL', ath: 259.96 }],
-  ['x2y2', { symbol: 'X2Y2', ath: 4.14 }],
-  ['ripple', { symbol: 'XRP', ath: 3.40 }],
-  ['usd-coin', { symbol: 'USDC', ath: 1.17 }],
-  ['tether', { symbol: 'USDT', ath: 1.32 }],
-]);
+const Subscriptions: string[] = [
+  'binancecoin',
+  'bitcoin',
+  'cardano',
+  'ethereum',
+  'ethereum-name-service',
+  'pancakeswap-token',
+  'polkadot',
+  'solana',
+  'x2y2',
+  'ripple',
+  'usd-coin',
+  'tether',
+  'monero',
+];
 
-// const callSimplePriceApi = async (ids: string) => {
-//   const url = `https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd,btc&precision=full`;
-//   const response = await axios.get(url);
-//   return response.data;
-// };
-
-const callMarketsApi = async (ids: string): Promise<Record<string, { ath: number, usd: number, btc: number}>> => {
+const callMarketsApi = async (ids: string): Promise<Record<string, { ath: number, usd: number, btc: number, symbol: string}>> => {
   const url1 = `https://api.coingecko.com/api/v3/coins/markets?ids=${ids}&vs_currency=usd&precision=full`;
-  // const url2 = `https://api.coingecko.com/api/v3/coins/markets?ids=${ids}&vs_currency=btc&precision=full`;
-  
-  // const [priceInUsdResponse, priceInBtcResponse] = await Promise.all([
-  //   axios.get(url1),
-  //   axios.get(url2),
-  // ]);
   const priceInUsdResponse = await axios.get(url1);
 
   const tokensInUsd = priceInUsdResponse.data;
-  // const tokensInBtc = priceInBtcResponse.data;
 
   const data: any = {};
 
@@ -50,15 +34,11 @@ const callMarketsApi = async (ids: string): Promise<Record<string, { ath: number
   const bitcoinPriceInUsd = bitcoin.current_price;
 
   tokensInUsd.forEach((tokenInUsd: any) => {
-    // const tokenInBtc = tokensInBtc.find((item: any) => {
-    //   return item.id === tokenInUsd.id;
-    // });
-
     data[tokenInUsd.id] = {
       ath: tokenInUsd.ath,
       usd: tokenInUsd.current_price,
       btc: tokenInUsd.current_price / bitcoinPriceInUsd,
-      // btc: tokenInBtc.current_price,
+      symbol: tokenInUsd.symbol.toUpperCase(),
     }
   });
 
@@ -71,7 +51,7 @@ export const useApi = (): [Coin[], dayjs.Dayjs | null, () => Promise<void>] => {
 
   const callApi = async () => {
     try {
-      const ids = Array.from(Subscriptions.keys()).join(',');
+      const ids = Array.from(Subscriptions).join(',');
       const data = await callMarketsApi(ids);
 
       let _coins: Coin[] = [];
@@ -79,16 +59,16 @@ export const useApi = (): [Coin[], dayjs.Dayjs | null, () => Promise<void>] => {
         const priceInUsd = data[key].usd;
         const priceInBtc = data[key].btc;
         const ath = data[key].ath;
+        const symbol = data[key].symbol;
 
-        const token = Subscriptions.get(key)!;
         const percentOfAth = priceInUsd / ath;
         const fromAth = 1 - (priceInUsd / ath);
-        const toAth = (token.ath - priceInUsd) / priceInUsd;
+        const toAth = (ath - priceInUsd) / priceInUsd;
         const athDecay = 0;
 
         _coins.push({
           name: key,
-          symbol: token.symbol,
+          symbol,
           priceInUsd,
           priceInBtc,
           ath,
