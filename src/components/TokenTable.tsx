@@ -5,6 +5,7 @@ import { formatCurrency, formatFloat, formatPercent } from '@/util/text';
 import { DetailModal } from './DetailModal';
 import { 
   Center,
+  Flex,
   Link,
   Table,
   TableContainer,
@@ -17,6 +18,7 @@ import {
   useDisclosure,
   useColorMode,
 } from '@chakra-ui/react';
+import {CopyIcon } from '@chakra-ui/icons'
 
 interface TokenTableProps {
   coins: Coin[],
@@ -131,6 +133,9 @@ const StandardView = (props: InternalProps) => {
     specialTextColor,
   } = props;
 
+  const [hoverIndex, setHoverIndex] = React.useState<number>(-1);
+  const [downIndex, setDownIndex] = React.useState<number>(-1);
+
   if (!coins) {
     return null;
   }
@@ -218,10 +223,44 @@ const StandardView = (props: InternalProps) => {
                       </Link>
                     </Center>
                   </Td>
-                  <Td>
-                    <Center>
-                      {formatCurrency(coin.priceInUsd)}
-                    </Center>
+                  <Td
+                    onMouseEnter={() => { 
+                      setHoverIndex(index);
+                    }}
+                    onMouseLeave={() => {
+                      setHoverIndex(-1);
+                    }}
+                    _hover={{
+                      cursor: 'pointer',
+                    }}
+                    onMouseDown={() => {
+                      setDownIndex(index);
+                    }}
+                    onMouseUp={() => {
+                      setDownIndex(-1);
+                    }}
+                    onClick={() => {
+                      navigator.clipboard.writeText(coin.priceInUsd.toString());
+                    }}
+                    color={downIndex === index ? '#888888' : undefined}
+                  >
+                    <Flex
+                      flexDirection="row"
+                      alignItems="center"
+                      justifyContent="center"
+                    >
+                      <Text>
+                        {formatCurrency(coin.priceInUsd)}
+                      </Text>
+
+                      { hoverIndex === index && (
+                        <CopyIcon 
+                          w={4} 
+                          h={4} 
+                          color={downIndex === index ? '#888888' : 'white'}
+                        />
+                      )}
+                    </Flex>
                   </Td>
                   <Td
                     color={coin.flagged ? specialTextColor : undefined}
