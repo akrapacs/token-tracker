@@ -4,6 +4,7 @@ import { Coin } from '../types/coin';
 import { formatCurrency, formatFloat, formatPercent } from '@/util/text';
 import { DetailModal } from './DetailModal';
 import { 
+  Box,
   Center,
   Flex,
   Link,
@@ -29,6 +30,58 @@ interface InternalProps extends TokenTableProps {
   stripeColor: string;
   specialTextColor: string;
 }
+
+const TdCopyable = (props: any) => {
+  const {
+    children,
+    textToCopy
+  } = props;
+
+  const [hovering, setHovering] = React.useState<boolean>(false);
+  const [mouseDown, setMoustDown] = React.useState<boolean>(false);
+
+  return (
+    <Td
+      onMouseEnter={() => { 
+        setHovering(true);
+      }}
+      onMouseLeave={() => {
+        setHovering(false);
+      }}
+      _hover={{
+        cursor: 'pointer',
+      }}
+      onMouseDown={() => {
+        setMoustDown(true);
+      }}
+      onMouseUp={() => {
+        setMoustDown(false);
+      }}
+      onClick={() => {
+        navigator.clipboard.writeText(textToCopy);
+      }}
+      color={mouseDown ? '#888888' : undefined}
+    >
+      <Flex
+        flexDirection="row"
+        alignItems="center"
+        justifyContent="center"
+      >
+        <Box>
+          { children }
+        </Box>
+
+        { hovering && (
+          <CopyIcon 
+            w={4} 
+            h={4} 
+            color={mouseDown ? '#888888' : 'white'}
+          />
+        )}
+      </Flex>
+    </Td>
+  );
+};
 
 const MobileView = (props: InternalProps) => {
   const {
@@ -133,9 +186,6 @@ const StandardView = (props: InternalProps) => {
     specialTextColor,
   } = props;
 
-  const [hoverIndex, setHoverIndex] = React.useState<number>(-1);
-  const [downIndex, setDownIndex] = React.useState<number>(-1);
-
   if (!coins) {
     return null;
   }
@@ -223,45 +273,13 @@ const StandardView = (props: InternalProps) => {
                       </Link>
                     </Center>
                   </Td>
-                  <Td
-                    onMouseEnter={() => { 
-                      setHoverIndex(index);
-                    }}
-                    onMouseLeave={() => {
-                      setHoverIndex(-1);
-                    }}
-                    _hover={{
-                      cursor: 'pointer',
-                    }}
-                    onMouseDown={() => {
-                      setDownIndex(index);
-                    }}
-                    onMouseUp={() => {
-                      setDownIndex(-1);
-                    }}
-                    onClick={() => {
-                      navigator.clipboard.writeText(coin.priceInUsd.toString());
-                    }}
-                    color={downIndex === index ? '#888888' : undefined}
+                  <TdCopyable
+                    textToCopy={coin.priceInUsd.toString()}
                   >
-                    <Flex
-                      flexDirection="row"
-                      alignItems="center"
-                      justifyContent="center"
-                    >
-                      <Text>
-                        {formatCurrency(coin.priceInUsd)}
-                      </Text>
-
-                      { hoverIndex === index && (
-                        <CopyIcon 
-                          w={4} 
-                          h={4} 
-                          color={downIndex === index ? '#888888' : 'white'}
-                        />
-                      )}
-                    </Flex>
-                  </Td>
+                    <Text>
+                      {formatCurrency(coin.priceInUsd)}
+                    </Text>
+                  </TdCopyable>
                   <Td
                     color={coin.flagged ? specialTextColor : undefined}
                     backgroundColor={highlightColor}
@@ -270,27 +288,41 @@ const StandardView = (props: InternalProps) => {
                       {coin.athDecay > 0 ? formatPercent(coin.athDecay) : '-'}
                     </Center>
                   </Td>
-                  <Td>
-                    <Center>
+                  <TdCopyable
+                    textToCopy={coin.priceInBtc.toString()}
+                  >
+                    <Text>
                       {formatFloat(coin.priceInBtc)}
-                    </Center>
-                  </Td>
-                  <Td>
-                    <Center>
+                    </Text>
+                  </TdCopyable>
+                  <TdCopyable
+                    textToCopy={coin.ath.toString()}
+                  >
+                    <Text>
                       {formatCurrency(coin.ath)}
-                    </Center>
-                  </Td>
-                  <Td>
-                    <Center>
+                    </Text>
+                  </TdCopyable>
+                  <TdCopyable
+                    textToCopy={coin.percentOfAth.toString()}
+                  >
+                    <Text>
                       {formatPercent(coin.percentOfAth)}
-                    </Center>
-                  </Td>
-                  <Td>
-                    <Center>
+                    </Text>
+                  </TdCopyable>
+                  <TdCopyable
+                    textToCopy={coin.fromAth.toString()}
+                  >
+                    <Text>
                       {formatPercent(coin.fromAth)}
-                    </Center>
-                  </Td>
-                  <Td>{formatPercent(coin.toAth)}</Td>
+                    </Text>
+                  </TdCopyable>
+                  <TdCopyable
+                    textToCopy={coin.toAth.toString()}
+                  >
+                    <Text>
+                      {formatPercent(coin.toAth)}
+                    </Text>
+                  </TdCopyable>
                 </Tr>
               );
             })
