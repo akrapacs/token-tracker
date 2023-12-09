@@ -18,6 +18,7 @@ const Subscriptions: string[] = [
   'usd-coin',
   'tether',
   'monero',
+  'crypto-com-chain',
 ];
 
 const callMarketsApi = async (ids: string): Promise<Record<string, { ath: number, usd: number, btc: number, symbol: string}>> => {
