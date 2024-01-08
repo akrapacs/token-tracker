@@ -8,17 +8,18 @@ const Subscriptions: string[] = [
   'binancecoin',
   'bitcoin',
   'cardano',
+  'crypto-com-chain',
   'ethereum',
   'ethereum-name-service',
+  'monero',
   'pancakeswap-token',
   'polkadot',
-  'solana',
-  'x2y2',
   'ripple',
-  'usd-coin',
+  'rocket-pool-eth',
+  'solana',
   'tether',
-  'monero',
-  'crypto-com-chain',
+  'usd-coin',
+  'x2y2',
 ];
 
 const callMarketsApi = async (ids: string): Promise<Record<string, { ath: number, usd: number, btc: number, symbol: string}>> => {
