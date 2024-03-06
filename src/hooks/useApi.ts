@@ -9,6 +9,7 @@ const Subscriptions: string[] = [
   'bitcoin',
   'cardano',
   'crypto-com-chain',
+  'dai',
   'ethereum',
   'ethereum-name-service',
   'monero',
