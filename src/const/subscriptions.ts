@@ -1,0 +1,98 @@
+export const Subscriptions = [
+    {
+      cg: 'binancecoin',
+      cmc: 1839,
+      symbol: 'BNB',
+      ath: 686.31,
+    },
+    {
+      cg: 'bitcoin',
+      cmc: 1,
+      symbol: 'BTC',
+      ath: 70009.00,
+    },
+    {
+      cg: 'cardano',
+      cmc: 2010,
+      symbol: 'ADA',
+      ath: 3.09,
+    },
+    {
+      cg: 'crypto-com-chain',
+      cmc: 3635,
+      symbol: 'CRO',
+      ath: .9654,
+    },
+    {
+      cg: 'dai',
+      cmc: 4943,
+      symbol: 'DAI',
+      ath: 1.22,
+    },
+    {
+      cg: 'ethereum',
+      cmc: 1027,
+      symbol: 'ETH',
+      ath: 4878.26,
+    },
+    {
+      cg: 'ethereum-name-service',
+      cmc: 13855,
+      symbol: 'ENS',
+      ath: 83.40,
+    },
+    {
+      cg: 'monero',
+      cmc: 328,
+      symbol: 'XMR',
+      ath: 542.33,
+    },
+    {
+      cg: 'pancakeswap-token',
+      cmc: 7186,
+      symbol: 'CAKE',
+      ath: 43.96,
+    },
+    {
+      cg: 'polkadot',
+      cmc: 6636,
+      symbol: 'DOT',
+      ath: 54.98,
+    },
+    {
+      cg: 'ripple',
+      cmc: 52,
+      symbol: 'XRP',
+      ath: 3.40,
+    },
+    {
+      cg: 'rocket-pool-eth',
+      cmc: 15060,
+      symbol: 'RETH',
+      ath: 4814.31,
+    },
+    {
+      cg: 'solana',
+      cmc: 5426,
+      symbol: 'SOL',
+      ath: 259.96,
+    },
+    {
+      cg: 'tether',
+      cmc: 825,
+      symbol: 'USDT',
+      ath: 1.32,
+    },
+    {
+      cg: 'usd-coin',
+      cmc: 3408,
+      symbol: 'USDC',
+      ath: 1.17,
+    },
+    {
+      cg: 'x2y2',
+      cmc: 18106,
+      symbol: 'X2Y2',
+      ath: 4.14,
+    },
+  ];
