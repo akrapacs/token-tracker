@@ -47,14 +47,21 @@ const callCMCApi = async (): Promise<Asset[] | undefined> => {
   }
 };
 
-export const useApi = (): [Coin[], dayjs.Dayjs | null, () => Promise<void>] => {
+export enum ApiType {
+  CoinGecko = 'CoinGecko',
+  CoinMarketCap = 'CoinMarketCap',
+};
+
+export const useApi = (type: ApiType = ApiType.CoinGecko): [Coin[], dayjs.Dayjs | null, () => Promise<void>] => {
   const [coins, setCoins] = useState<Coin[]>([]);
   const [updatedAt, setUpdatedAt] = useState<dayjs.Dayjs | null>(null);
 
   const callApi = async () => {
     try {
-      let assets: Asset[] | undefined = await callCGApi();
-      if (!assets) {
+      let assets: Asset[] | undefined;
+      if (type === ApiType.CoinGecko) {
+        assets = await callCGApi();
+      } else if (type === ApiType.CoinMarketCap) {
         assets = await callCMCApi();
       }
       if (!assets) {

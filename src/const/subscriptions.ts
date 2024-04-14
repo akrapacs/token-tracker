@@ -9,7 +9,7 @@ export const Subscriptions = [
       cg: 'bitcoin',
       cmc: 1,
       symbol: 'BTC',
-      ath: 70009.00,
+      ath: 73738.00,
     },
     {
       cg: 'cardano',
@@ -65,18 +65,18 @@ export const Subscriptions = [
       symbol: 'XRP',
       ath: 3.40,
     },
-    {
-      cg: 'rocket-pool-eth',
-      cmc: 15060,
-      symbol: 'RETH',
-      ath: 4814.31,
-    },
-    {
-      cg: 'solana',
-      cmc: 5426,
-      symbol: 'SOL',
-      ath: 259.96,
-    },
+    // {
+    //   cg: 'rocket-pool-eth',
+    //   cmc: 15060,
+    //   symbol: 'RETH',
+    //   ath: 4814.31,
+    // },
+    // {
+    //   cg: 'solana',
+    //   cmc: 5426,
+    //   symbol: 'SOL',
+    //   ath: 259.96,
+    // },
     {
       cg: 'tether',
       cmc: 825,
