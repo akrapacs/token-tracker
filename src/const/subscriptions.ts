@@ -35,12 +35,12 @@ export const Subscriptions = [
       symbol: 'ETH',
       ath: 4878.26,
     },
-    {
-      cg: 'ethereum-name-service',
-      cmc: 13855,
-      symbol: 'ENS',
-      ath: 83.40,
-    },
+    // {
+    //   cg: 'ethereum-name-service',
+    //   cmc: 13855,
+    //   symbol: 'ENS',
+    //   ath: 83.40,
+    // },
     {
       cg: 'monero',
       cmc: 328,
