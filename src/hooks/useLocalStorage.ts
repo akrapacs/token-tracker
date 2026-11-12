@@ -9,8 +9,11 @@ const getItem = <T> (key: string, defaultValue: T): T => {
   if (!saved) {
     return defaultValue;
   }
-  const initial = JSON.parse(saved);
-  return initial || defaultValue;
+  try {
+    return JSON.parse(saved) ?? defaultValue;
+  } catch {
+    return defaultValue;
+  }
 }
 
 export const useLocalStorage = <T> (key: string, defaultValue: T): [T, Dispatch<SetStateAction<T>>] => {

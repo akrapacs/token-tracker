@@ -34,7 +34,7 @@ export default function Home() {
 
   const processedCoins = useMemo(() => {
     const bitcoin = coins.find((coin: Coin) => {
-      return coin.symbol = 'BTC';
+      return coin.symbol === 'BTC';
     });
 
     const _btcAthDiffThreshold = parseFloat(btcAthDiffThreshold) / 100;
